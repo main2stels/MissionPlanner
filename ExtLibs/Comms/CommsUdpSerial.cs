@@ -15,11 +15,11 @@ namespace MissionPlanner.Comms
 {
     public class UdpSerial : CommsBase, ICommsSerial, IDisposable
     {
-        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+        protected static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
         public readonly List<IPEndPoint> EndPointList = new List<IPEndPoint>();
 
-        private bool _isopen;
+        protected bool _isopen;
 
         public bool CancelConnect = false;
         /// <summary>
@@ -75,7 +75,7 @@ namespace MissionPlanner.Comms
 
         public int DataBits { get; set; }
 
-        public string PortName
+        public virtual string PortName
         {
             get => "UDP" + Port;
             set { }
@@ -97,7 +97,7 @@ namespace MissionPlanner.Comms
 
         public bool DtrEnable { get; set; }
 
-        public void Open()
+        public virtual void Open()
         {
             if (client.Client.Connected || IsOpen)
             {

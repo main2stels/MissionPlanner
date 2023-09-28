@@ -20,6 +20,7 @@ namespace MissionPlanner.Controls
             CMB_serialport.Items.Add("UDP");
             CMB_serialport.Items.Add("UDPCl");
             CMB_serialport.Items.Add("WS");
+            CMB_serialport.Items.Add("CS-AIR-LINK");
 
             ThemeManager.ApplyThemeTo(this);
 

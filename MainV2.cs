@@ -1365,6 +1365,7 @@ namespace MissionPlanner
             _connectionControl.CMB_serialport.Items.Add("UDP");
             _connectionControl.CMB_serialport.Items.Add("UDPCl");
             _connectionControl.CMB_serialport.Items.Add("WS");
+            _connectionControl.CMB_serialport.Items.Add("CS-AIR-LINK");
         }
 
         private void MenuFlightData_Click(object sender, EventArgs e)
@@ -1544,6 +1545,13 @@ namespace MissionPlanner
                 case "UDPCl":
                     comPort.BaseStream = new UdpSerialConnect();
                     _connectionControl.CMB_serialport.Text = "UDPCl";
+                    break;
+                case "CS-AIR-LINK":
+                    comPort.BaseStream = new AirLinkUdpSerial((airlinkLogin, airlinkPas) => {
+                        return new MAVLink.MavlinkParse()
+                            .GenerateMAVLinkPacket20(MAVLink.MAVLINK_MSG_ID.AIRLINK_AUTH, new MAVLink.mavlink_airlink_auth_t(airlinkLogin, airlinkPas));
+                    });
+                    _connectionControl.CMB_serialport.Text = "CS-AIR-LINK";
                     break;
                 case "AUTO":
                     // do autoscan
@@ -2002,7 +2010,7 @@ namespace MissionPlanner
                 return;
 
             comPortName = _connectionControl.CMB_serialport.Text;
-            if (comPortName == "UDP" || comPortName == "UDPCl" || comPortName == "TCP" || comPortName == "AUTO")
+            if (comPortName == "UDP" || comPortName == "UDPCl" || comPortName == "TCP" || comPortName == "AUTO" || comPortName == "CS-AIR-LINK")
             {
                 _connectionControl.CMB_baudrate.Enabled = false;
             }
