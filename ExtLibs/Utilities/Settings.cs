@@ -520,7 +520,7 @@ namespace MissionPlanner.Utilities
                             || key.Contains("!") || key.Contains("#")
                             || key.Contains("$") || key.Contains("%"))
                         {
-                            Debugger.Break();
+                            //Debugger.Break();
                             Console.WriteLine("Bad config key " + key);
                             continue;
                         }

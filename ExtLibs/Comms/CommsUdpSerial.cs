@@ -319,7 +319,7 @@ namespace MissionPlanner.Comms
             return Encoding.ASCII.GetString(temp, 0, temp.Length);
         }
 
-        public void Close()
+        public virtual void Close()
         {
             _isopen = false;
             if (client != null) client.Close();

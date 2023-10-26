@@ -1,4 +1,4 @@
-set PATH=c:\python27;%PATH%
+rem set PATH=c:\python27;%PATH%
 
 rd /s /q "mavlink"
 

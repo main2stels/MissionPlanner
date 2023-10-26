@@ -45,12 +45,17 @@ namespace MissionPlanner.Utilities
                 Direction.Inbound,
                 "udpsrc port=5601 buffer-size=90000 ! application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H265 ! decodebin3 ! queue max-size-buffers=1 leaky=2 ! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink sync=false"),
 
+            //new ConnectionInfo("CSKY GCS", true, 1554, ProtocolType.Tcp, ConnectionFormat.Video, Direction.Outbound,
+            //    "rtspsrc location=rtsp://admin:qwerty00@localhost:554/Streaming/Channels/101 latency=41 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,format=BGRA ! autovideosin"),
+
             new ConnectionInfo("SkyViper", false, 554, ProtocolType.Tcp, ConnectionFormat.Video, Direction.Outbound,
                 "rtspsrc location=rtsp://192.168.99.1/media/stream2 debug=false buffer-mode=1 latency=100 ntp-time-source=3 ! application/x-rtp ! decodebin3 ! queue max-size-buffers=1 leaky=2 ! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink sync=false"),
             new ConnectionInfo("HereLink Wifi", false, 8554, ProtocolType.Tcp, ConnectionFormat.Video, Direction.Outbound,
                 "rtspsrc location=rtsp://192.168.43.1:8554/fpv_stream latency=41 udp-reconnect=1 timeout=0 do-retransmission=false ! application/x-rtp ! decodebin3 ! queue max-size-buffers=1 leaky=2 ! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink sync=false"),
             new ConnectionInfo("HereLink GCS", false, 8554, ProtocolType.Tcp, ConnectionFormat.Video, Direction.Outbound,
                 "rtspsrc location=rtsp://192.168.0.10:8554/H264Video latency=41 udp-reconnect=1 timeout=0 do-retransmission=false ! application/x-rtp ! decodebin3 ! queue max-size-buffers=1 leaky=2 ! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink sync=false"),
+
+            
 
             new ConnectionInfo("Serial", false, 57600, ProtocolType.Serial, ConnectionFormat.MAVLink,
                 Direction.Outbound, ""),
@@ -63,11 +68,9 @@ namespace MissionPlanner.Utilities
         {
             var config = Settings.Instance[SettingsName];
 
-            if (config == null)
-            {
-                Settings.Instance[SettingsName] = connectionInfos.ToJSON();
-                config = Settings.Instance[SettingsName];
-            }
+            Settings.Instance[SettingsName] = connectionInfos.ToJSON();
+            config = Settings.Instance[SettingsName];
+            
 
             connectionInfos = config.FromJSON<List<ConnectionInfo>>();
 
@@ -307,8 +310,8 @@ namespace MissionPlanner.Utilities
 
                     if (connectionInfo.Direction == Direction.Outbound)
                     {
-                        NewVideoStream?.BeginInvoke(null,
-                            connectionInfos.First(a => a == connectionInfo).ConfigString, null, null);
+                        var configString = connectionInfos.First(a => a == connectionInfo).ConfigString;
+                        NewVideoStream?.BeginInvoke(null, configString, null, null);
                         continue;
                     }
                 }

@@ -38,6 +38,8 @@ using System.Linq;
 using MissionPlanner.Joystick;
 using System.Net;
 using Newtonsoft.Json;
+using MissionPlanner.AirLinkEye;
+using static MAVLink;
 
 namespace MissionPlanner
 {
@@ -1366,6 +1368,7 @@ namespace MissionPlanner
             _connectionControl.CMB_serialport.Items.Add("UDPCl");
             _connectionControl.CMB_serialport.Items.Add("WS");
             _connectionControl.CMB_serialport.Items.Add("CS-AIR-LINK");
+            _connectionControl.CMB_serialport.Items.Add("CS-EYE");
         }
 
         private void MenuFlightData_Click(object sender, EventArgs e)
@@ -1507,6 +1510,32 @@ namespace MissionPlanner
             this.MenuConnect.Image = global::MissionPlanner.Properties.Resources.light_connect_icon;
         }
 
+        private AirLinkClient _airLinkClient;
+        private TcpVideoClient _tcpVideoClient;
+
+        IPEndPoint localIpEndPoint = new IPEndPoint(new IPAddress(new byte[] { 127, 0, 0, 1 }), 14570);
+
+        private void ReceiveServerMessage(byte[] data)
+        {
+            _airLinkClient.Send(data, localIpEndPoint);
+        }
+
+        private void ReceiveRtcpFromRemouteCamera(byte[] data)
+        {   
+            _tcpVideoClient.BroadcastMessageAsync(data);
+        }
+
+        private void ReceiveRtpFromRemouteCamera(byte[] data)
+        {
+            _tcpVideoClient.BroadcastRtp(data);
+        }
+
+        private void ReceiveFromGSVideo(byte[] data)
+        {
+            _airLinkClient.SendRtcpToCamera(data);
+        }//Перенести в другое место
+
+        private static bool _canDiscoonect = false;
         public void doConnect(MAVLinkInterface comPort, string portname, string baud, bool getparams = true, bool showui = true)
         {
             bool skipconnectcheck = false;
@@ -1552,6 +1581,48 @@ namespace MissionPlanner
                             .GenerateMAVLinkPacket20(MAVLink.MAVLINK_MSG_ID.AIRLINK_AUTH, new MAVLink.mavlink_airlink_auth_t(airlinkLogin, airlinkPas));
                     });
                     _connectionControl.CMB_serialport.Text = "CS-AIR-LINK";
+                    break;
+                case "CS-EYE":
+                    _canDiscoonect = false;
+                    //_airLinkClient = new AirLinkClient(ReceiveServerMessage, true, ReceiveRtcpFromRemouteCamera, ReceiveRtpFromRemouteCamera);
+                    _airLinkClient = new AirLinkClient(ReceiveServerMessage, true, ReceiveRtcpFromRemouteCamera, ReceiveRtpFromRemouteCamera, localIpEndPoint);
+                    _tcpVideoClient = new TcpVideoClient(ReceiveFromGSVideo, _airLinkClient);
+                    _tcpVideoClient.Start();
+                    comPort.OnPacketReceived += _airLinkClient.MavlinkOnOnPacketReceived;
+                    //comPort.BaseStream = new UdpSerial();
+                    //comPort.BaseStream = new AirLinkEYEUdpSerial((airlinkLogin, airlinkPas) =>
+                    //{
+                    //    return new MAVLink.MavlinkParse()
+                    //        .GenerateMAVLinkPacket20(MAVLink.MAVLINK_MSG_ID.AIRLINK_AUTH, new MAVLink.mavlink_airlink_auth_t(airlinkLogin, airlinkPas));
+                    //}, () =>
+                    //{
+
+                    //}, () =>
+                    //{
+                    //    //_airLinkClient.Disconnect();
+                    //    //tcpVideoClient.Disconnect();
+                    //    //udpProxyClient.Dispose();
+                    //});
+                    _airLinkClient.Connect();
+
+                    comPort.BaseStream = new AirLinkEYETestUdpSerial((airlinkLogin, airlinkPas) =>
+                    {
+                        _airLinkClient.Send(MAVLINK_MSG_ID.AIRLINK_AUTH, new mavlink_airlink_auth_t(airlinkLogin, airlinkPas));
+                    }, 
+                    () => { _airLinkClient.EyeConnected(); }, 
+                    () => { 
+                        if(_canDiscoonect) 
+                        {
+                            _airLinkClient.Disconnect();
+                            _airLinkClient.Dispose();
+                            _tcpVideoClient.Dispose();
+                            comPort.OnPacketReceived -= _airLinkClient.MavlinkOnOnPacketReceived;
+                        }
+                    });
+
+                    _canDiscoonect = true;
+                    
+                    _connectionControl.CMB_serialport.Text = "CS-EYE";
                     break;
                 case "AUTO":
                     // do autoscan
@@ -2010,7 +2081,7 @@ namespace MissionPlanner
                 return;
 
             comPortName = _connectionControl.CMB_serialport.Text;
-            if (comPortName == "UDP" || comPortName == "UDPCl" || comPortName == "TCP" || comPortName == "AUTO" || comPortName == "CS-AIR-LINK")
+            if (comPortName == "UDP" || comPortName == "UDPCl" || comPortName == "TCP" || comPortName == "AUTO" || comPortName == "CS-AIR-LINK" || comPortName == "CS-EYE")
             {
                 _connectionControl.CMB_baudrate.Enabled = false;
             }

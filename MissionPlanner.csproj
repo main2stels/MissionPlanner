@@ -671,6 +671,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AirLinkEye\AirLinkClient.cs" />
+    <Compile Include="AirLinkEye\ClientVideoObject.cs" />
+    <Compile Include="AirLinkEye\CskyProto\CskyLink.cs" />
+    <Compile Include="AirLinkEye\CskyProto\CskyMessage.cs" />
+    <Compile Include="AirLinkEye\CskyProto\CskyProtocolType.cs" />
+    <Compile Include="AirLinkEye\MavReader.cs" />
+    <Compile Include="AirLinkEye\TcpVideoClient.cs" />
+    <Compile Include="AirLinkEye\UdpVideoClient.cs" />
     <Compile Include="Antenna\TrackerGeneric.cs" />
     <Compile Include="Common.cs" />
     <Compile Include="Controls\DroneCANSubscriber.cs">

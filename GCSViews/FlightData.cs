@@ -6180,5 +6180,37 @@ namespace MissionPlanner.GCSViews
                 CustomMessageBox.Show(Strings.CommandFailed + ex.ToString(), Strings.ERROR);
             }
         }
+
+        private void airLinkEYEReconnectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            GStreamer.StopAll();
+
+            //string ipaddr = "192.168.43.1";
+
+            //if (Settings.Instance["herelinkip"] != null)
+            //    ipaddr = Settings.Instance["herelinkip"].ToString();
+
+            //InputBox.Show("herelink ip", "Enter herelink ip address", ref ipaddr);
+
+            //Settings.Instance["herelinkip"] = ipaddr;
+            //string url = "rtspsrc location=rtsp://localhost:554/main.264 latency=100 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,width=1280,height=720 ! autovideosink";
+
+            string url = "rtspsrc location=rtsp://admin:qwerty00@localhost:554/Streaming/Channels/101 latency=100 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,width=1280,height=720 ! autovideosink";
+            //string url = "rtspsrc location=rtsp://localhost:554/main.264 latency=0 ! queue ! application/x-rtp ! rtph265depay ! avdec_h265 ! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink";
+
+            GStreamer.gstlaunch = GStreamer.LookForGstreamer();
+
+            if (!GStreamer.gstlaunchexists)
+            {
+                GStreamerUI.DownloadGStreamer();
+
+                if (!GStreamer.gstlaunchexists)
+                {
+                    return;
+                }
+            }
+
+            GStreamer.StartA(url);
+        }
     }
 }

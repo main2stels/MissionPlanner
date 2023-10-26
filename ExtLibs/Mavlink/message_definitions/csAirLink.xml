@@ -14,6 +14,30 @@
         <description>Auth successful</description>
       </entry>
     </enum>
+	<enum name="AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE">
+      <entry value="0" name="PARTNER_NOT_READY">
+        <description>9600</description>
+      </entry>
+      <entry value="1" name="PARTNER_READY">
+        <description>57600</description>
+      </entry>
+    </enum>
+    <enum name="AIRLINK_EYE_GS_IP_VERSION">
+      <entry value="0" name="V4">
+        <description>v4</description>
+      </entry>
+      <entry value="1" name="V6">
+        <description>v6</description>
+      </entry>
+    </enum>
+    <enum name="AIRLINK_EYE_HOLE_PUSH_TYPE">
+      <entry value="0" name="NOT_PENETRATED">
+        <description>v4</description>
+      </entry>
+      <entry value="1" name="BROKEN">
+        <description>v6</description>
+      </entry>
+    </enum>
   </enums>
   <messages>
     <message id="52000" name="AIRLINK_AUTH">
@@ -24,6 +48,22 @@
     <message id="52001" name="AIRLINK_AUTH_RESPONSE">
       <description>Response to the authorization request</description>
       <field type="uint8_t" name="resp_type" enum="AIRLINK_AUTH_RESPONSE_TYPE">Response type</field>
+    </message>
+    <message id="52002" name="AIRLINK_EYE_GS_HOLE_PUSH_REQUEST">
+      <description>AIRLINK_MODEM_EYE_AUTH_RESPONSE</description>
+      <field type="uint8_t" name="resp_type" enum="AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE">response type</field>
+    </message>
+    <message id="52003" name="AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE">
+      <description>HOLE PUSH RESPONSE</description>
+      <field type="uint8_t" name="resp_type" enum="AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE">hole push response type</field>
+      <field type="uint8_t" name="ip_version" enum="AIRLINK_EYE_IP_VERSION">ip version</field>
+      <field type="uint8_t[4]" name="ip_address_4">ip 4</field>
+      <field type="uint8_t[16]" name="ip_address_6">ip 6</field>
+      <field type="uint32_t" name="ip_port">port</field>
+    </message>
+    <message id="52004" name="AIRLINK_EYE_HP">
+      <description>HOLE PUSH</description>
+      <field type="uint8_t" name="resp_type" enum="AIRLINK_EYE_HOLE_PUSH_TYPE">hole push response type</field>
     </message>
   </messages>
 </mavlink>

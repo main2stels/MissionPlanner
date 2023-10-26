@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 public partial class MAVLink
 {
-    public const string MAVLINK_BUILD_DATE = "Wed Aug 16 2023";
+    public const string MAVLINK_BUILD_DATE = "Thu Sep 28 2023";
     public const string MAVLINK_WIRE_PROTOCOL_VERSION = "2.0";
     public const int MAVLINK_MAX_PAYLOAD_LEN = 255;
 
@@ -328,6 +328,9 @@ public partial class MAVLink
         new message_info(50005, "CUBEPILOT_FIRMWARE_UPDATE_RESP", 152, 6, 6, typeof( mavlink_cubepilot_firmware_update_resp_t )),
         new message_info(52000, "AIRLINK_AUTH", 13, 100, 100, typeof( mavlink_airlink_auth_t )),
         new message_info(52001, "AIRLINK_AUTH_RESPONSE", 239, 1, 1, typeof( mavlink_airlink_auth_response_t )),
+        new message_info(52002, "AIRLINK_EYE_GS_HOLE_PUSH_REQUEST", 24, 1, 1, typeof( mavlink_airlink_eye_gs_hole_push_request_t )),
+        new message_info(52003, "AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE", 166, 26, 26, typeof( mavlink_airlink_eye_gs_hole_push_response_t )),
+        new message_info(52004, "AIRLINK_EYE_HP", 39, 1, 1, typeof( mavlink_airlink_eye_hp_t )),
         new message_info(26900, "VIDEO_STREAM_INFORMATION99", 222, 246, 246, typeof( mavlink_video_stream_information99_t )),
         new message_info(0, "HEARTBEAT", 50, 9, 9, typeof( mavlink_heartbeat_t )),
 
@@ -657,6 +660,9 @@ public partial class MAVLink
         CUBEPILOT_FIRMWARE_UPDATE_RESP = 50005,
         AIRLINK_AUTH = 52000,
         AIRLINK_AUTH_RESPONSE = 52001,
+        AIRLINK_EYE_GS_HOLE_PUSH_REQUEST = 52002,
+        AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE = 52003,
+        AIRLINK_EYE_HP = 52004,
         VIDEO_STREAM_INFORMATION99 = 26900,
         HEARTBEAT = 0,
     }
@@ -6206,6 +6212,42 @@ public partial class MAVLink
         ///<summary> Auth successful | </summary>
         [Description("Auth successful")]
         AIRLINK_AUTH_OK=1, 
+        
+    };
+    
+    ///<summary>  </summary>
+    public enum AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE: byte
+    {
+        ///<summary> 9600 | </summary>
+        [Description("9600")]
+        PARTNER_NOT_READY=0, 
+        ///<summary> 57600 | </summary>
+        [Description("57600")]
+        PARTNER_READY=1, 
+        
+    };
+    
+    ///<summary>  </summary>
+    public enum AIRLINK_EYE_GS_IP_VERSION: int /*default*/
+    {
+        ///<summary> v4 | </summary>
+        [Description("v4")]
+        V4=0, 
+        ///<summary> v6 | </summary>
+        [Description("v6")]
+        V6=1, 
+        
+    };
+    
+    ///<summary>  </summary>
+    public enum AIRLINK_EYE_HOLE_PUSH_TYPE: byte
+    {
+        ///<summary> v4 | </summary>
+        [Description("v4")]
+        NOT_PENETRATED=0, 
+        ///<summary> v6 | </summary>
+        [Description("v6")]
+        BROKEN=1, 
         
     };
     
@@ -31473,6 +31515,133 @@ public partial class MAVLink
         [Description("Response type")]
         //[FieldOffset(0)]
         public  /*AIRLINK_AUTH_RESPONSE_TYPE*/byte resp_type;
+    };
+
+    
+    /// extensions_start 0
+    [StructLayout(LayoutKind.Sequential,Pack=1,Size=1)]
+    ///<summary> AIRLINK_MODEM_EYE_AUTH_RESPONSE </summary>
+    public struct mavlink_airlink_eye_gs_hole_push_request_t
+    {
+        /// packet ordered constructor
+        public mavlink_airlink_eye_gs_hole_push_request_t(/*AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE*/byte resp_type) 
+        {
+            this.resp_type = resp_type;
+            
+        }
+        
+        /// packet xml order
+        public static mavlink_airlink_eye_gs_hole_push_request_t PopulateXMLOrder(/*AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE*/byte resp_type) 
+        {
+            var msg = new mavlink_airlink_eye_gs_hole_push_request_t();
+
+            msg.resp_type = resp_type;
+            
+            return msg;
+        }
+        
+
+        /// <summary>response type AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE  </summary>
+        [Units("")]
+        [Description("response type")]
+        //[FieldOffset(0)]
+        public  /*AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE*/byte resp_type;
+    };
+
+    
+    /// extensions_start 0
+    [StructLayout(LayoutKind.Sequential,Pack=1,Size=26)]
+    ///<summary> HOLE PUSH RESPONSE </summary>
+    public struct mavlink_airlink_eye_gs_hole_push_response_t
+    {
+        /// packet ordered constructor
+        public mavlink_airlink_eye_gs_hole_push_response_t(uint ip_port,/*AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE*/byte resp_type,/*AIRLINK_EYE_IP_VERSION*/byte ip_version,byte[] ip_address_4,byte[] ip_address_6) 
+        {
+            this.ip_port = ip_port;
+            this.resp_type = resp_type;
+            this.ip_version = ip_version;
+            this.ip_address_4 = ip_address_4;
+            this.ip_address_6 = ip_address_6;
+            
+        }
+        
+        /// packet xml order
+        public static mavlink_airlink_eye_gs_hole_push_response_t PopulateXMLOrder(/*AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE*/byte resp_type,/*AIRLINK_EYE_IP_VERSION*/byte ip_version,byte[] ip_address_4,byte[] ip_address_6,uint ip_port) 
+        {
+            var msg = new mavlink_airlink_eye_gs_hole_push_response_t();
+
+            msg.resp_type = resp_type;
+            msg.ip_version = ip_version;
+            msg.ip_address_4 = ip_address_4;
+            msg.ip_address_6 = ip_address_6;
+            msg.ip_port = ip_port;
+            
+            return msg;
+        }
+        
+
+        /// <summary>port   </summary>
+        [Units("")]
+        [Description("port")]
+        //[FieldOffset(0)]
+        public  uint ip_port;
+
+        /// <summary>hole push response type AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE  </summary>
+        [Units("")]
+        [Description("hole push response type")]
+        //[FieldOffset(4)]
+        public  /*AIRLINK_EYE_GS_HOLE_PUSH_RESP_TYPE*/byte resp_type;
+
+        /// <summary>ip version AIRLINK_EYE_IP_VERSION  </summary>
+        [Units("")]
+        [Description("ip version")]
+        //[FieldOffset(5)]
+        public  /*AIRLINK_EYE_IP_VERSION*/byte ip_version;
+
+        /// <summary>ip 4   </summary>
+        [Units("")]
+        [Description("ip 4")]
+        //[FieldOffset(6)]
+        [MarshalAs(UnmanagedType.ByValArray,SizeConst=4)]
+		public byte[] ip_address_4;
+
+        /// <summary>ip 6   </summary>
+        [Units("")]
+        [Description("ip 6")]
+        //[FieldOffset(10)]
+        [MarshalAs(UnmanagedType.ByValArray,SizeConst=16)]
+		public byte[] ip_address_6;
+    };
+
+    
+    /// extensions_start 0
+    [StructLayout(LayoutKind.Sequential,Pack=1,Size=1)]
+    ///<summary> HOLE PUSH </summary>
+    public struct mavlink_airlink_eye_hp_t
+    {
+        /// packet ordered constructor
+        public mavlink_airlink_eye_hp_t(/*AIRLINK_EYE_HOLE_PUSH_TYPE*/byte resp_type) 
+        {
+            this.resp_type = resp_type;
+            
+        }
+        
+        /// packet xml order
+        public static mavlink_airlink_eye_hp_t PopulateXMLOrder(/*AIRLINK_EYE_HOLE_PUSH_TYPE*/byte resp_type) 
+        {
+            var msg = new mavlink_airlink_eye_hp_t();
+
+            msg.resp_type = resp_type;
+            
+            return msg;
+        }
+        
+
+        /// <summary>hole push response type AIRLINK_EYE_HOLE_PUSH_TYPE  </summary>
+        [Units("")]
+        [Description("hole push response type")]
+        //[FieldOffset(0)]
+        public  /*AIRLINK_EYE_HOLE_PUSH_TYPE*/byte resp_type;
     };
 
     
