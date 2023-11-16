@@ -38,6 +38,17 @@
         <description>v6</description>
       </entry>
     </enum>
+	<enum name="AIRLINK_EYE_TURN_INIT_TYPE">
+      <entry value="0" name="INIT_START">
+        <description>start</description>
+      </entry>
+      <entry value="1" name="INIT_OK">
+        <description>ok</description>
+      </entry>
+	  <entry value="2" name="INIT_BAD">
+        <description>ok</description>
+      </entry>
+    </enum>
   </enums>
   <messages>
     <message id="52000" name="AIRLINK_AUTH">
@@ -64,6 +75,10 @@
     <message id="52004" name="AIRLINK_EYE_HP">
       <description>HOLE PUSH</description>
       <field type="uint8_t" name="resp_type" enum="AIRLINK_EYE_HOLE_PUSH_TYPE">hole push response type</field>
+    </message>
+	<message id="52005" name="AIRLINK_EYE_TURN_INIT">
+      <description>TURN INIT</description>
+      <field type="uint8_t" name="resp_type" enum="AIRLINK_EYE_TURN_INIT_TYPE">turn init start</field>
     </message>
   </messages>
 </mavlink>

@@ -11,6 +11,7 @@ using MissionPlanner.AirLinkEye.CskyProto;
 using BruTile.Wmts.Generated;
 using static OpenTK.Graphics.OpenGL.GL;
 using MissionPlanner.Utilities;
+using STUN;
 
 namespace MissionPlanner.AirLinkEye
 {
@@ -23,7 +24,9 @@ namespace MissionPlanner.AirLinkEye
         private UdpClient _udpServerClient;
         private MavlinkParse _mavParse = new MavlinkParse();
         //private string _airlinkHostName = "airlink.biruch.ru";
-        private string _airlinkHostName = "air-link.space";
+        //private string _airlinkHostName = "air-link.space";
+        //private string _airlinkHostName = "dev.air-link.space";
+        private string _airlinkHostName = "localhost";
         private int _airlinkServerPort = 10000;
         private static int _port = 14850;
 
@@ -50,6 +53,10 @@ namespace MissionPlanner.AirLinkEye
         private bool _threadSendingHPRequestToServer = true;
 
         private bool _isGStreamerStarted = false;
+
+        private DateTime _timeStartHPSending = DateTime.Now;
+        private bool _isFirstSendingHP = false;
+        private bool _isTurnStart = false;
 
         private AIRLINK_EYE_HOLE_PUSH_TYPE _hpType = AIRLINK_EYE_HOLE_PUSH_TYPE.NOT_PENETRATED;
         private AIRLINK_EYE_HOLE_PUSH_TYPE _hawkhpType = AIRLINK_EYE_HOLE_PUSH_TYPE.NOT_PENETRATED;
@@ -196,6 +203,7 @@ namespace MissionPlanner.AirLinkEye
 
                             if (msg == null)
                             {
+                                _receiveRtpVideoAction.Invoke(data);
                                 continue;
                             }
 
@@ -214,6 +222,10 @@ namespace MissionPlanner.AirLinkEye
                                     case CskyProtocolType.Rtp:
                                         _receiveRtpVideoAction.Invoke(msg.Payload);
                                         break;
+                                    default:
+                                        _receiveRtpVideoAction.Invoke(data);
+                                        break;
+
                                 }
                             }
                             catch (Exception e)
@@ -324,12 +336,19 @@ namespace MissionPlanner.AirLinkEye
         {
             switch (linkMessage.msgid)
             {
-                case (uint)MAVLink.MAVLINK_MSG_ID.AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE:
+                case (uint)MAVLINK_MSG_ID.AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE:
                     HolePushResponse(linkMessage);
                     break;
-                case (uint)MAVLink.MAVLINK_MSG_ID.AIRLINK_EYE_HP:
+                case (uint)MAVLINK_MSG_ID.AIRLINK_EYE_HP:
                     HPHawkReceiive(linkMessage);
                     break;
+                case (uint)MAVLINK_MSG_ID.AIRLINK_EYE_TURN_INIT:
+                    TurnReceive(linkMessage);
+                    break;
+                case (uint)MAVLINK_MSG_ID.HEARTBEAT:
+                    Hearbeat(linkMessage);
+                    break;
+
             }
         }
 
@@ -357,6 +376,12 @@ namespace MissionPlanner.AirLinkEye
             {
                 if (_hawkIP != null)
                 {
+                    if(!_isFirstSendingHP)
+                    {
+                        _isFirstSendingHP = true;
+                        _timeStartHPSending = DateTime.Now;
+                    }
+                        
                     Send(MAVLINK_MSG_ID.AIRLINK_EYE_HP, new mavlink_airlink_eye_hp_t((byte)_hpType), _hawkIP);
                 }
 
@@ -425,6 +450,37 @@ namespace MissionPlanner.AirLinkEye
             Console.WriteLine($"HP receive; HAWK HP TYPE: {_hawkhpType}");
         }
 
+        private void TurnReceive(MAVLinkMessage msg)
+        {
+            var turn = msg.ToStructure<mavlink_airlink_eye_turn_init_t>();
+
+            if(turn.resp_type == (byte)AIRLINK_EYE_TURN_INIT_TYPE.INIT_OK)
+            {
+                _isTurnStart = true;
+            }
+        }
+
+        private void Hearbeat(MAVLinkMessage msg)
+        {
+            var hb = msg.ToStructure<mavlink_heartbeat_t>();
+
+            if (msg.compid != 191)
+                return;
+
+            if (_hpType == AIRLINK_EYE_HOLE_PUSH_TYPE.BROKEN && _hawkhpType == AIRLINK_EYE_HOLE_PUSH_TYPE.BROKEN)
+                return;
+
+            if (_isTurnStart)
+                return;
+
+
+            if(_isFirstSendingHP)
+            {
+                if ((DateTime.Now - _timeStartHPSending).TotalSeconds > 15)
+                    Send(MAVLINK_MSG_ID.AIRLINK_EYE_TURN_INIT, new mavlink_airlink_eye_turn_init_t((byte)AIRLINK_EYE_TURN_INIT_TYPE.INIT_START));
+            }
+        }
+
         private void StartGStreamer()
         {
             GStreamer.StopAll();
@@ -439,8 +495,8 @@ namespace MissionPlanner.AirLinkEye
             //Settings.Instance["herelinkip"] = ipaddr;
 
             //string url = "rtspsrc location=rtsp://localhost:554/main.264 latency=100 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,width=1280,height=720 ! autovideosink";
-            string url = "rtspsrc location=rtsp://admin:qwerty00@localhost:554/Streaming/Channels/101 latency=100 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,width=1280,height=720 ! autovideosink";
-            //string url = "rtspsrc location=rtsp://localhost:554/main.264 latency=0 ! queue ! application/x-rtp ! rtph265depay ! avdec_h265 ! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink";
+            //string url = "rtspsrc location=rtsp://admin:qwerty00@localhost:554/Streaming/Channels/101 latency=100 ! queue ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! videoscale ! video/x-raw,width=1280,height=720 ! autovideosink";
+            string url = "rtspsrc location=rtsp://localhost:554/main.264 latency=100 ! queue ! application/x-rtp ! rtph265depay ! avdec_h265 ! videoconvert ! video/x-raw,format=BGRA ! appsink name=outsink";
             GStreamer.gstlaunch = GStreamer.LookForGstreamer();
 
             if (!GStreamer.gstlaunchexists)

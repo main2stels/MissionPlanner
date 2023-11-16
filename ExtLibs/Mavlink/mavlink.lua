@@ -315,6 +315,7 @@ messageName = {
     [52002] = 'AIRLINK_EYE_GS_HOLE_PUSH_REQUEST',
     [52003] = 'AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE',
     [52004] = 'AIRLINK_EYE_HP',
+    [52005] = 'AIRLINK_EYE_TURN_INIT',
     [0] = 'HEARTBEAT',
 }
 
@@ -2148,6 +2149,11 @@ local enumEntryName = {
     ["AIRLINK_EYE_HOLE_PUSH_TYPE"] = {
         [0] = "NOT_PENETRATED",
         [1] = "BROKEN",
+    },
+    ["AIRLINK_EYE_TURN_INIT_TYPE"] = {
+        [0] = "INIT_START",
+        [1] = "INIT_OK",
+        [2] = "INIT_BAD",
     },
     ["MAV_AUTOPILOT"] = {
         [0] = "MAV_AUTOPILOT_GENERIC",

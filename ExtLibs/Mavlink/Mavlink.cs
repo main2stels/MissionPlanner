@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 public partial class MAVLink
 {
-    public const string MAVLINK_BUILD_DATE = "Thu Sep 28 2023";
+    public const string MAVLINK_BUILD_DATE = "Wed Nov 15 2023";
     public const string MAVLINK_WIRE_PROTOCOL_VERSION = "2.0";
     public const int MAVLINK_MAX_PAYLOAD_LEN = 255;
 
@@ -331,6 +331,7 @@ public partial class MAVLink
         new message_info(52002, "AIRLINK_EYE_GS_HOLE_PUSH_REQUEST", 24, 1, 1, typeof( mavlink_airlink_eye_gs_hole_push_request_t )),
         new message_info(52003, "AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE", 166, 26, 26, typeof( mavlink_airlink_eye_gs_hole_push_response_t )),
         new message_info(52004, "AIRLINK_EYE_HP", 39, 1, 1, typeof( mavlink_airlink_eye_hp_t )),
+        new message_info(52005, "AIRLINK_EYE_TURN_INIT", 145, 1, 1, typeof( mavlink_airlink_eye_turn_init_t )),
         new message_info(26900, "VIDEO_STREAM_INFORMATION99", 222, 246, 246, typeof( mavlink_video_stream_information99_t )),
         new message_info(0, "HEARTBEAT", 50, 9, 9, typeof( mavlink_heartbeat_t )),
 
@@ -663,6 +664,7 @@ public partial class MAVLink
         AIRLINK_EYE_GS_HOLE_PUSH_REQUEST = 52002,
         AIRLINK_EYE_GS_HOLE_PUSH_RESPONSE = 52003,
         AIRLINK_EYE_HP = 52004,
+        AIRLINK_EYE_TURN_INIT = 52005,
         VIDEO_STREAM_INFORMATION99 = 26900,
         HEARTBEAT = 0,
     }
@@ -6248,6 +6250,21 @@ public partial class MAVLink
         ///<summary> v6 | </summary>
         [Description("v6")]
         BROKEN=1, 
+        
+    };
+    
+    ///<summary>  </summary>
+    public enum AIRLINK_EYE_TURN_INIT_TYPE: byte
+    {
+        ///<summary> start | </summary>
+        [Description("start")]
+        INIT_START=0, 
+        ///<summary> ok | </summary>
+        [Description("ok")]
+        INIT_OK=1, 
+        ///<summary> ok | </summary>
+        [Description("ok")]
+        INIT_BAD=2, 
         
     };
     
@@ -31642,6 +31659,37 @@ public partial class MAVLink
         [Description("hole push response type")]
         //[FieldOffset(0)]
         public  /*AIRLINK_EYE_HOLE_PUSH_TYPE*/byte resp_type;
+    };
+
+    
+    /// extensions_start 0
+    [StructLayout(LayoutKind.Sequential,Pack=1,Size=1)]
+    ///<summary> TURN INIT </summary>
+    public struct mavlink_airlink_eye_turn_init_t
+    {
+        /// packet ordered constructor
+        public mavlink_airlink_eye_turn_init_t(/*AIRLINK_EYE_TURN_INIT_TYPE*/byte resp_type) 
+        {
+            this.resp_type = resp_type;
+            
+        }
+        
+        /// packet xml order
+        public static mavlink_airlink_eye_turn_init_t PopulateXMLOrder(/*AIRLINK_EYE_TURN_INIT_TYPE*/byte resp_type) 
+        {
+            var msg = new mavlink_airlink_eye_turn_init_t();
+
+            msg.resp_type = resp_type;
+            
+            return msg;
+        }
+        
+
+        /// <summary>turn init start AIRLINK_EYE_TURN_INIT_TYPE  </summary>
+        [Units("")]
+        [Description("turn init start")]
+        //[FieldOffset(0)]
+        public  /*AIRLINK_EYE_TURN_INIT_TYPE*/byte resp_type;
     };
 
     
